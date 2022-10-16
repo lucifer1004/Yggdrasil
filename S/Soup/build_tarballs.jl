@@ -41,7 +41,7 @@ dependencies = [
     Dependency("brotli_jll"),
     Dependency("libpsl_jll"),
     Dependency("LibUnwind_jll"),
-    Dependency(PackageSpec(; name = "GlibNetworking_jll",  uuid = "99fd4003-298c-58dc-a8c7-c8e9475755a1", url = "https://github.com/lucifer1004/GlibNetworking_jll.jl.git")),
+    Dependency(PackageSpec(; name = "GlibNetworking_jll",  uuid = "99fd4003-298c-58dc-a8c7-c8e9475755a1",path="/home/ubuntu/.julia/dev/GlibNetworking_jll")),
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
