@@ -54,7 +54,7 @@ else
     esac
     cd ${WORKSPACE}/srcdir
     export MPITRAMPOLINE_FC=gfortran
-    mpifort -O2 -fno-range-check -fallow-argument-mismatch mpidefs-parallel-v3.0.f90 mstm-intrinsics-v3.0.f90 mstm-modules-v3.0.f90 mstm-main-v3.0.f90 -o "${bindir}/mstm3${exeext}"
+    mpifort -O2 -fno-range-check mpidefs-parallel-v3.0.f90 mstm-intrinsics-v3.0.f90 mstm-modules-v3.0.f90 mstm-main-v3.0.f90 -o "${bindir}/mstm3${exeext}"
     gfortran -O2 -fno-range-check -fallow-argument-mismatch mpidefs-serial.f90 mstm-intrinsics-v3.0.f90 mstm-modules-v3.0.f90 mstm-main-v3.0.f90 -o "${bindir}/mstm3_serial${exeext}"
 fi
 
