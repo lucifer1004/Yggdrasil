@@ -13,11 +13,19 @@ sources = [
 # Bash recipe for building across all platforms
 script = raw"""
 cd $WORKSPACE/srcdir/libsoup-*/
+install_license COPYING
 
 mkdir build_glib && cd build_glib
 meson --cross-file="${MESON_TARGET_TOOLCHAIN}" \
     --buildtype=release \
     ..
+
+# https://github.com/rbgirshick/py-faster-rcnn/issues/706
+sed -i "s/-R/-Wl,-rpath=/" build.ninja
+
+# https://stackoverflow.com/questions/2418157/c-error-undefined-reference-to-clock-gettime-and-clock-settime
+sed -i "s/\$ARGS -o \$out \$in \$LINK_ARGS/\$ARGS -o \$out \$in \$LINK_ARGS -lrt/" build.ninja
+
 ninja -j${nproc}
 ninja install
 """
@@ -28,7 +36,7 @@ platforms = supported_platforms()
 
 # The products that we will ensure are always built
 products = [
-    LibraryProduct(["libsuop"], :libsoup),
+    LibraryProduct(["libsoup", "libsoup-3.0"], :libsoup),
 ]
 
 # Dependencies that must be installed before this package can be built
