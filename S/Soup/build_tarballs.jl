@@ -7,7 +7,7 @@ version = v"3.2.1"
 # Collection of sources required to build Soup
 sources = [
     ArchiveSource("https://download.gnome.org/sources/libsoup/$(version.major).$(version.minor)/libsoup-$(version).tar.xz",
-                  "b1eb3d2c3be49fbbd051a71f6532c9626bcecea69783190690cd7e4dfdf28f29"),
+        "b1eb3d2c3be49fbbd051a71f6532c9626bcecea69783190690cd7e4dfdf28f29"),
 ]
 
 # Bash recipe for building across all platforms
@@ -18,13 +18,19 @@ install_license COPYING
 mkdir build_glib && cd build_glib
 meson --cross-file="${MESON_TARGET_TOOLCHAIN}" \
     --buildtype=release \
+    -Dtls_check=false \
+    -Dtests=false \
+    -Ddocs=disabled \
+    -Dsysprof=disabled \
     ..
 
-# https://github.com/rbgirshick/py-faster-rcnn/issues/706
-sed -i "s/-R/-Wl,-rpath=/" build.ninja
+if [[ "${target}" != *darwin* ]]; then
+    # https://github.com/rbgirshick/py-faster-rcnn/issues/706
+    sed -i "s/-R/-Wl,-rpath=/" build.ninja
 
-# https://stackoverflow.com/questions/2418157/c-error-undefined-reference-to-clock-gettime-and-clock-settime
-sed -i "s/\$ARGS -o \$out \$in \$LINK_ARGS/\$ARGS -o \$out \$in \$LINK_ARGS -lrt/" build.ninja
+    # https://stackoverflow.com/questions/2418157/c-error-undefined-reference-to-clock-gettime-and-clock-settime
+    sed -i "s/\$ARGS -o \$out \$in \$LINK_ARGS/\$ARGS -o \$out \$in \$LINK_ARGS -lrt/" build.ninja
+fi
 
 ninja -j${nproc}
 ninja install
@@ -32,24 +38,26 @@ ninja install
 
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
-platforms = supported_platforms()
+platforms = supported_platforms(; exclude=Sys.iswindows)
 
 # The products that we will ensure are always built
 products = [
-    LibraryProduct(["libsoup", "libsoup-3.0"], :libsoup),
+    LibraryProduct(["libsoup", "libsoup-3", "libsoup-3.0"], :libsoup),
 ]
 
 # Dependencies that must be installed before this package can be built
 dependencies = [
     # Host gettext needed for "msgfmt"
     HostBuildDependency("Gettext_jll"),
+    # Gettext is only needed on macOS
+    Dependency("Gettext_jll", v"0.21.0"; compat="=0.21.0", platforms=filter(Sys.isapple, platforms)),
     Dependency("Glib_jll"; compat="2.74.0"),
     Dependency("SQLite_jll"),
     Dependency("nghttp2_jll"),
     Dependency("brotli_jll"),
     Dependency("libpsl_jll"),
     Dependency("LibUnwind_jll"),
-    Dependency(PackageSpec(; name = "GlibNetworking_jll",  uuid = "99fd4003-298c-58dc-a8c7-c8e9475755a1",path="/home/ubuntu/.julia/dev/GlibNetworking_jll")),
+    Dependency(PackageSpec(; name="GlibNetworking_jll", uuid="99fd4003-298c-58dc-a8c7-c8e9475755a1", path="/home/ubuntu/.julia/dev/GlibNetworking_jll")),
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
